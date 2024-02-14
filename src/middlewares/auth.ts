@@ -9,7 +9,7 @@ import Api from '../firebase/api';
 import axios from 'axios';
 
 const fBaseHelper = new Api();
-const allowedPaths: string[] = ['/ping', '/song-index'];
+const allowedPaths: string[] = ['/ping', '/song-index',"/search-index"];
 export default async (req: express.Request, res: express.Response, next) => {
     console.log('request_path_original = ', req.originalUrl, 'request_path_current = ', req.url);
     // set the incoming request device type

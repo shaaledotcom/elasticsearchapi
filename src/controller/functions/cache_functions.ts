@@ -95,6 +95,25 @@ async function getAllSongsHomeDetailFromRedis(){
     }
 }
 
+export async function getAllMetatagBodyResultsFromRedis() {
+    try {
+        const client: RedisClientType = await CacheClass.getInstance().getRedisCache();
+        const keys = await client.keys('V1_MetaTagList:*');
+        const songs = [];
+        for (const key of keys) {
+            const value = await client.get(key);
+            const song = CacheClass.convertToObject(value);
+            if (song) {
+                songs.push(song);
+            }
+        }
+        return songs
+    } catch (error) {
+        console.error('Failed to retrieve songs from Redis:', error);
+        throw error;
+    }
+}
+
 export {
     getVideoFromRedis,
     getAllSubscriptionFromRedis,
@@ -103,5 +122,5 @@ export {
     getAllAudioFromRedis,
     getAudioFromRedis,
     getUserContinueWatchingInRedis,
-    getAllSongsHomeDetailFromRedis
+    getAllSongsHomeDetailFromRedis,
 }
