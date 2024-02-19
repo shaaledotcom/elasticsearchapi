@@ -69,12 +69,68 @@ export default class SongIndexController extends Base {
                         },
                         data: {
                             type: 'object',
-                            dynamic: true
+                            properties: {
+                                lessons: {
+                                    type: 'nested',
+                                    properties: {
+                                        data: {
+                                            type: 'nested',
+                                            properties: {
+                                                categories: {
+                                                    type: 'nested',
+                                                    properties: {
+                                                        id: {
+                                                            type: 'keyword'
+                                                        },
+                                                        value: {
+                                                            type: 'text',
+                                                            fields: {
+                                                                keyword: {
+                                                                    type: 'keyword',
+                                                                    ignore_above: 256
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                practice: {
+                                    type: 'nested',
+                                    properties: {
+                                        data: {
+                                            type: 'nested',
+                                            properties: {
+                                                categories: {
+                                                    type: 'nested',
+                                                    properties: {
+                                                        id: {
+                                                            type: 'keyword'
+                                                        },
+                                                        value: {
+                                                            type: 'text',
+                                                            fields: {
+                                                                keyword: {
+                                                                    type: 'keyword',
+                                                                    ignore_above: 256
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                            }
                         }
                     }
                 }
             }
-        })
+        });
+
 
         const result = await client.helpers.bulk({
             datasource: allSongs,

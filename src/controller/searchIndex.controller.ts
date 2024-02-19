@@ -98,14 +98,18 @@ export default class SearchIndexController extends Base {
     public search = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         let elastic_conf = await key('ELASTIC_CONF')
         const searchTerm = req.query.searchTerm as string;
-        const categoryFilter = req.body.categoryFilter;
-        const typeFilter = req.body.type;
-        const featuredTagFilter = req.body.featuredTags;
-        const profileFilter = req.body.profiles;
-        const ageFilter = req.body.age;
-        const genderFilter = req.body.gender;
-        const languageFilter = req.body.language;
-        const openToFilter = req.body.openTo;
+        const {
+            categoryFilter: categoryFilter,
+            type: typeFilter,
+            featuredTags: featuredTagFilter,
+            profiles: profileFilter,
+            age: ageFilter,
+            gender: genderFilter,
+            language: languageFilter,
+            openTo: openToFilter,
+            location: locationFilter
+        } = req.body;
+
 
         const filters = []
         const client = new Client({
@@ -169,6 +173,7 @@ export default class SearchIndexController extends Base {
             { filterValues: genderFilter, propertyExtractor: data => data.flatMap(d => d?.gender) },
             { filterValues: languageFilter, propertyExtractor: data => data.flatMap(d => d?.language) },
             { filterValues: openToFilter, propertyExtractor: data => data.flatMap(d => d?.openTo) },
+            { filterValues: locationFilter, propertyExtractor: data => data.flatMap(d => d?.location) },
         ];
 
         function matchesFilter(data, filterValues, propertyExtractor) {
@@ -229,7 +234,18 @@ export default class SearchIndexController extends Base {
             })
         }
 
-        res.locals.data = { result: 'ok', data: processedResults, filters }
+        const selectedFilters = {
+            category: categoryFilter,
+            type: typeFilter,
+            featuredTag: featuredTagFilter,
+            profile: profileFilter,
+            age: ageFilter,
+            gender: genderFilter,
+            language: languageFilter,
+            openTo: openToFilter,
+            location: locationFilter
+        }
+        res.locals.data = { result: 'ok', data: processedResults, filters, selectedFilters }
         sendResponse(res);
     }
 }
