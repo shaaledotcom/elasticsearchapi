@@ -65,7 +65,63 @@ export default class SongIndexController extends Base {
                     properties: {
                         songDetails: {
                             type: 'object',
-                            dynamic: true
+                            properties: {
+                                id: {
+                                    type: 'keyword'
+                                },
+                                category: {
+                                    type: 'nested',
+                                    properties: {
+                                        id: {
+                                            type: 'keyword'
+                                        },
+                                        value: {
+                                            type: 'text',
+                                            fields: {
+                                                keyword: {
+                                                    type: 'keyword',
+                                                    ignore_above: 256
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                title: {
+                                    type: 'text',
+                                    fields: {
+                                        keyword: {
+                                            type: 'keyword',
+                                            ignore_above: 256
+                                        }
+                                    }
+                                },
+                                description: {
+                                    type: 'text',
+                                    fields: {
+                                        keyword: {
+                                            type: 'keyword',
+                                            ignore_above: 256
+                                        }
+                                    }
+                                },
+                                metatags: {
+                                    type: 'nested',
+                                    properties: {
+                                        id: {
+                                            type: 'keyword'
+                                        },
+                                        name: {
+                                            type: 'text',
+                                            fields: {
+                                                keyword: {
+                                                    type: 'keyword',
+                                                    ignore_above: 256
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         data: {
                             type: 'object',
