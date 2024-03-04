@@ -75,7 +75,6 @@ export default class SearchIndexController extends Base {
                             dynamic: true,
                             type: "nested",
                         },
-
                     }
                 }
             }
@@ -91,7 +90,7 @@ export default class SearchIndexController extends Base {
                 }
             }
         })
-        res.locals.data = { result: 'ok', data: result }
+        res.locals.data = { result: 'ok',}
         sendResponse(res);
     }
 
@@ -124,34 +123,40 @@ export default class SearchIndexController extends Base {
 
         let queryObject: any = {
             index: 'main-search',
-            body: {
-                query: {
-                    nested: {
-                        path: "data",
-                        query: {
-                            bool: {
-                                must: [
-                                    {
-                                        fuzzy: {
-                                            "data.title": {
-                                                value: searchTerm.toLowerCase(),
-                                                fuzziness: "AUTO",
-                                                prefix_length: 0,
-                                                max_expansions: 50
+            query: {
+                "nested": {
+                    "path": "data",
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "bool": {
+                                        "should": [
+                                            {
+                                                "match": {
+                                                    "data.title": {
+                                                        "query": searchTerm.toLowerCase(),
+                                                        "fuzziness": "AUTO"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "match": {
+                                                    "data.title.keyword": searchTerm.toLowerCase()
+                                                }
                                             }
-                                        }
+                                        ]
                                     }
-                                ]
-                            }
-                        },
-                        inner_hits: {}
-                    }
+                                }
+                            ]
+                        }
+                    },
+                    "inner_hits": {}
                 }
             }
         };
 
         const searchResult = await client.search(queryObject);
-
         const hits = searchResult.hits.hits;
         let processedResults = hits.map(hit => {
             const clonedHit = JSON.parse(JSON.stringify(hit));
@@ -163,7 +168,6 @@ export default class SearchIndexController extends Base {
 
             return clonedHit._source;
         });
-
         const filtersList = [
             { filterValues: categoryFilter, propertyExtractor: data => data.flatMap(d => d.categories?.map(c => c.value)) },
             { filterValues: typeFilter, propertyExtractor: data => data.flatMap(d => d.type) },
@@ -245,7 +249,26 @@ export default class SearchIndexController extends Base {
             openTo: openToFilter,
             location: locationFilter
         }
-        res.locals.data = { result: 'ok', data: processedResults, filters, selectedFilters }
+        const titleOrder = [
+            "Profiles", "Songs", "Performances", "Workshops",
+            "Lessons", "Albums", "Podcasts", "Interviews"
+        ];
+        let sortedDetail = [...processedResults].sort((a, b) => {
+            let indexA = titleOrder.indexOf(a.title);
+            let indexB = titleOrder.indexOf(b.title);
+            if (indexA === -1) indexA = titleOrder.length;
+            if (indexB === -1) indexB = titleOrder.length;
+            return indexA - indexB;
+        });
+        const additionalTitles = ["All tracks", "All videos", "External Links"];
+        additionalTitles.forEach(title => {
+            const index = sortedDetail.findIndex(item => item.title === title);
+            if (index !== -1) {
+                const item = sortedDetail.splice(index, 1)[0];
+                sortedDetail.push(item);
+            }
+        });
+        res.locals.data = { result: 'ok', data: sortedDetail, filters, selectedFilters }
         sendResponse(res);
     }
 }
