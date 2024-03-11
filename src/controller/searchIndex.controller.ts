@@ -250,7 +250,7 @@ export default class SearchIndexController extends Base {
             location: locationFilter
         }
         const titleOrder = [
-            "Profiles", "Songs", "Performances", "Workshops",
+            "Profiles", "Songs","Categories","Performances", "Workshops",
             "Lessons", "Albums", "Podcasts", "Interviews"
         ];
         let sortedDetail = [...processedResults].sort((a, b) => {
