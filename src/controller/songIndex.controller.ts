@@ -148,6 +148,23 @@ export default class SongIndexController extends Base {
                                                             }
                                                         }
                                                     }
+                                                },
+                                                profiles: {
+                                                    type: 'nested',
+                                                    properties: {
+                                                        id: {
+                                                            type: 'keyword'
+                                                        },
+                                                        name: {
+                                                            type: 'text',
+                                                            fields: {
+                                                                keyword: {
+                                                                    type: 'keyword',
+                                                                    ignore_above: 256
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -166,6 +183,23 @@ export default class SongIndexController extends Base {
                                                             type: 'keyword'
                                                         },
                                                         value: {
+                                                            type: 'text',
+                                                            fields: {
+                                                                keyword: {
+                                                                    type: 'keyword',
+                                                                    ignore_above: 256
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                profiles: {
+                                                    type: 'nested',
+                                                    properties: {
+                                                        id: {
+                                                            type: 'keyword'
+                                                        },
+                                                        name: {
                                                             type: 'text',
                                                             fields: {
                                                                 keyword: {
