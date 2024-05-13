@@ -7,6 +7,7 @@ import { getAllMetatagBodyResultsFromRedis } from "./functions/cache_functions";
 import console from "console";
 import { key } from "../firebase/key";
 import { Client } from '@elastic/elasticsearch';
+import { HomePageBodyDataInterface } from '../cache/home_page_interface';
 
 export default class SearchIndexController extends Base {
 
@@ -109,6 +110,7 @@ export default class SearchIndexController extends Base {
             location: locationFilter
         } = req.body;
 
+        const subscriptionGiveAccess: { isGiven: boolean; code: string } = this.checkSubscriptionGiveAccess(req.userData);
 
         const filters = []
         const client = new Client({
@@ -268,7 +270,61 @@ export default class SearchIndexController extends Base {
                 sortedDetail.push(item);
             }
         });
+        sortedDetail.forEach(item => {
+            if (!["Songs", "Profiles", "External Links"].includes(item.title)) {
+                item.data?.forEach((dataItem, index) => {
+                    item.data[index] = createSubscriptionData(dataItem, dataItem.type, subscriptionGiveAccess, req);
+                    if (dataItem.type === "eventVideo" || dataItem.type === "courseVideo") {
+                        item.data[index].type = dataItem.type === "eventVideo" ? "event" : "course";
+                    }
+                });
+            }
+        });
         res.locals.data = { result: 'ok', data: sortedDetail, filters, selectedFilters }
         sendResponse(res);
     }
+}
+
+export function createSubscriptionData(data, type, subscriptionGiveAccess, req) {
+    const applyAccessibility = (data, accessType) => {
+        if (accessType === 'subscription' || accessType === 'premium') {
+            data.accessibility = subscriptionGiveAccess;
+        } else {
+            data.accessibility = { isGiven: true, code: 'free' };
+        }
+        return data;
+    };
+
+    const GetPrice = (type, data) => {
+        if (['event', 'course', 'video', 'audio', "eventVideo", "courseVideo"].includes(type)) {
+            getPrice(req, data, data.accessibility.isGiven);
+        }
+    };
+
+    switch (type) {
+        case 'event':
+        case 'course':
+        case 'video':
+        case "eventVideo":
+        case "courseVideo":
+        case 'audio':
+            data = applyAccessibility(data, data.accessType || data.access);
+            GetPrice(type, data);
+            return data;
+        case 'playlist':
+            data = applyAccessibility(data, data.accessType || data.access);
+            return data;
+        case 'profile':
+            return data;
+        default:
+            return data;
+    }
+}
+
+
+function getPrice(req: Request, data: HomePageBodyDataInterface, isAccessGiven: boolean) {
+    data.price = !isAccessGiven ? req.isIndia ? data.priceInr
+        : data.priceUsd : null;
+    delete data.priceUsd;
+    delete data.priceInr;
 }
