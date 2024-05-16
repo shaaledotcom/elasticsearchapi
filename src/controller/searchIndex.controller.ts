@@ -27,15 +27,13 @@ export default class SearchIndexController extends Base {
         this.router.get('/info', tryCatchWrapper(performanceWrapper(this.getInfo)));
         this.router.get('/create', tryCatchWrapper(performanceWrapper(this.createIndex)));
         this.router.post("/get", tryCatchWrapper(performanceWrapper(this.search)));
+        this.router.delete('/delete', tryCatchWrapper(performanceWrapper(this.deleteIndex)));
     }
 
     public async getInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
         let elastic_conf = await key('ELASTIC_CONF')
-
         const client = new Client({
-            cloud: {
-                id: elastic_conf["id"]
-            },
+            node: elastic_conf["node"],
             auth: {
                 username: elastic_conf["username"],
                 password: elastic_conf["password"]
@@ -47,13 +45,28 @@ export default class SearchIndexController extends Base {
         sendResponse(res);
     }
 
+    public async deleteIndex(req: Request, res: Response, next: NextFunction): Promise<void> {
+        let elastic_conf = await key('ELASTIC_CONF')
+        const client = new Client({
+            node: elastic_conf["node"],
+            auth: {
+                username: elastic_conf["username"],
+                password: elastic_conf["password"]
+            }
+        });
+        const info = await client.info();
+        await client.indices.delete({
+            index: 'main-search'
+        });
+        res.locals.data = { result: 'ok' }
+        sendResponse(res);
+    }
+
     public async createIndex(req: Request, res: Response, next: NextFunction): Promise<void> {
         let elastic_conf = await key('ELASTIC_CONF')
 
         const client = new Client({
-            cloud: {
-                id: elastic_conf["id"]
-            },
+            node: elastic_conf["node"],
             auth: {
                 username: elastic_conf["username"],
                 password: elastic_conf["password"]
@@ -114,9 +127,7 @@ export default class SearchIndexController extends Base {
 
         const filters = []
         const client = new Client({
-            cloud: {
-                id: elastic_conf["id"]
-            },
+            node: elastic_conf["node"],
             auth: {
                 username: elastic_conf["username"],
                 password: elastic_conf["password"]

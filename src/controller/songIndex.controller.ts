@@ -4,7 +4,6 @@ import tryCatchWrapper from '../lib/try_catch_wrapper';
 import Base from './Base';
 import performanceWrapper from "../lib/performance_wrapper";
 import { getAllSongsHomeDetailFromRedis } from "./functions/cache_functions";
-import console from "console";
 import { key } from "../firebase/key";
 import { Client } from '@elastic/elasticsearch';
 
@@ -24,33 +23,44 @@ export default class SongIndexController extends Base {
         express.use('/song-index/', this.router);
         this.router.get('/info', tryCatchWrapper(performanceWrapper(this.getInfo)));
         this.router.get('/create', tryCatchWrapper(performanceWrapper(this.createIndex)));
+        this.router.delete('/delete', tryCatchWrapper(performanceWrapper(this.deleteIndex)));
     }
 
     public async getInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
         let elastic_conf = await key('ELASTIC_CONF')
-
         const client = new Client({
-            cloud: {
-                id: elastic_conf["id"]
-            },
+            node: elastic_conf["node"],
             auth: {
                 username: elastic_conf["username"],
                 password: elastic_conf["password"]
             }
         });
         const info: any = await client.info();
-        console.log(info);
         res.locals.data = { result: 'ok', info: info.body }
+        sendResponse(res);
+    }
+
+    public async deleteIndex(req: Request, res: Response, next: NextFunction): Promise<void> {
+        let elastic_conf = await key('ELASTIC_CONF')
+        const client = new Client({
+            node: elastic_conf["node"],
+            auth: {
+                username: elastic_conf["username"],
+                password: elastic_conf["password"]
+            }
+        });
+        const info = await client.info();
+        await client.indices.delete({
+            index: 'song-home'
+        });
+        res.locals.data = { result: 'ok' }
         sendResponse(res);
     }
 
     public async createIndex(req: Request, res: Response, next: NextFunction): Promise<void> {
         let elastic_conf = await key('ELASTIC_CONF')
-
         const client = new Client({
-            cloud: {
-                id: elastic_conf["id"]
-            },
+            node: elastic_conf["node"],
             auth: {
                 username: elastic_conf["username"],
                 password: elastic_conf["password"]
@@ -236,4 +246,3 @@ export default class SongIndexController extends Base {
         sendResponse(res);
     }
 }
-

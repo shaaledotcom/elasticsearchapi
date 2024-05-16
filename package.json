@@ -23,7 +23,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "copy-files": "copyfiles -a *.env.* build/",
-    "localrunprod": "npm run build && KEY='prod' STREAM_KEY='projects/1084007491631/secrets/stream_key/versions/1' IK_STREAM_KEY='projects/1084007491631/secrets/ik_stream_key/versions/1' PROD_DB_URL='projects/1084007491631/secrets/service_account/versions/3' REDIS_IP='localhost' ELASTIC_CONF='projects/1084007491631/secrets/elastic-search/versions/3' npm run startLocal",
+    "localrunprod": "npm run build && KEY='prod' STREAM_KEY='projects/1084007491631/secrets/stream_key/versions/1' IK_STREAM_KEY='projects/1084007491631/secrets/ik_stream_key/versions/1' PROD_DB_URL='projects/1084007491631/secrets/service_account/versions/3' REDIS_IP='localhost' ELASTIC_CONF='projects/1084007491631/secrets/elasticsearch-self-managed/versions/2' npm run startLocal",
     "localrundev": "npm run build && KEY='dev' STREAM_KEY='projects/242880965663/secrets/stream_key/versions/1' LOCAL='yes' DEV_DB_URL='projects/242880965663/secrets/service_account/versions/5' npm run startLocal",
     "point-to-production": "gcloud config set project shaale-one-production",
     "prodCloudBuild": "gcloud builds submit --tag gcr.io/shaale-one-production/elasticsearchapi",
