@@ -30,6 +30,8 @@
     "prodCloudDeploy": "gcloud run deploy --image gcr.io/shaale-one-production/elasticsearchapi elasticsearchapi --platform managed",
     "production-deploy-run": "npm run point-to-production && npm run prodCloudBuild",
     "deploy-asia-south1": "gcloud run deploy --image gcr.io/shaale-one-production/elasticsearchapi elasticsearchapi --platform managed --region asia-south1",
+    "deploy-us-central1": "gcloud run deploy --image gcr.io/shaale-one-production/elasticsearchapi elasticsearchapi --platform managed --region us-central1",
+    "deploy-europe-west6": "gcloud run deploy --image gcr.io/shaale-one-production/elasticsearchapi elasticsearchapi --platform managed --region europe-west6",
     "prod-deploy-multiple-regions": "npm run prodCloudBuild && npm run deploy-asia-south1"
   },
   "license": "SEE LICENSE IN LICENSE.md",
